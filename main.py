@@ -1,4 +1,3 @@
-import pygame as pg
 from settings import *
 
 pg.init()
@@ -13,6 +12,8 @@ class Simulation:
             for events in pg.event.get():
                 if events.type == pg.QUIT:
                     self.run = False
+
+            self.win.blit(game_field_img, (0, 0))
 
             pg.display.update()
 
