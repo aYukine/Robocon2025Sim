@@ -34,16 +34,16 @@ class Robot:
             return True  # Reached destination
         return False # Still moving
     
-    def Dribble(self):
+    def dribble(self):
         pass
     
-    def Pass(self):
+    def passing(self):
         pass
 
-    def Shoot(self):
+    def shoot(self):
         pass
 
-    def Dunk(self):
+    def dunk(self):
         pass
     
     def draw_robot(self, win):
