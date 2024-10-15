@@ -1,5 +1,6 @@
 import pygame as pg
 import numpy as np
+import ultil
 
 class Robot:
     def __init__(self, x, y, diameter, color, speed):
@@ -10,6 +11,7 @@ class Robot:
         self.color = color
         self.rect = pg.Rect(x-diameter/2, y-diameter/2, diameter, diameter)
         self.speed = speed
+        self.rotation = 0
 
     def update_rect(self):
         self.rect = pg.Rect(self.x-self.radius, self.y-self.radius, self.radius*2, self.radius*2)
@@ -34,6 +36,18 @@ class Robot:
             return True  # Reached destination
         return False # Still moving
     
+    # def grapse_ball(Self, ball):
+    #     if self.hand.rect.colliderect(ball.rect) and not ball.attached:
+    #         ball.attached = True
+    #         ball.master = self  # Optionally link the ball to the robot
+    #         print("Ball grasped by the robot.")
+            
+    # def update_ball_position(self, ball):
+    #     if ball.attached:
+    #         ball.x = self.hand.x
+    #         ball.y = self.hand.y
+    #         ball.update_rect()
+    
     def dribble(self):
         pass
     
@@ -48,12 +62,15 @@ class Robot:
     
     def draw_robot(self, win):
         pg.draw.circle(win, self.color, (self.x, self.y), self.radius)
+        s_pos = ultil.find_rotation(self.x, self.y, self.radius, self.rotation)
+        e_pos = ultil.find_rotation(self.x, self.y, self.radius+30, self.rotation)
+        pg.draw.line(win, self.color, s_pos, e_pos, 5)
 
-
-class ball:
+class Ball:
     def __init__(self, x, y, radius):
         self.x = x
         self.y = y
+        self.radius = radius
         self.rect = pg.Rect(x-radius, y-radius, radius*2, radius*2)
         self.momentum = 0
         self.direction = (0, 0)
@@ -61,8 +78,13 @@ class ball:
         self.master = None
 
     def update_rect(self):
-        self.rect = pg.Rect(self.x-self.radius, self.y-self.radius, self.radius*2, self.radius*2)
-
+        self.rect = pg.Rect(self.x -  self.radius, self.y - self.radius, self.radius*2, self.radius*2)
+         
     def move(self):
         if not self.attached:
-            pass
+            self.x += self.direction[0] * self.momentum
+            self.y += self.direction[1] * self.momentum
+            self.update_rect()
+        else:
+            self.x, self.y = ultil.find_rotation(self.attached.x, self.attached.y, self.attached.radius+30, self.attached.rotation)
+            self.update_rect()

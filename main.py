@@ -1,7 +1,9 @@
 from settings import *
-from robot import Robot
+from robot import Robot, Ball
 from trajectory import *
 import time
+import ultil
+
 pg.init()
 
 class Simulation:
@@ -17,12 +19,18 @@ class Simulation:
             Robot(robot3_x, robot3_y, robot_d, BLUE, robot_speed),
             Robot(robot4_x, robot4_y, robot_d, BLUE, robot_speed)
         ]
+        self.ball = Ball(x = 500, y = 600, radius =24)
+        self.ball.attached = self.robots[0]
         self.tasks = [robot1_tasks, robot2_tasks, robot3_tasks, robot4_tasks]
         self.clock = pg.time.Clock()
 
     def draw_robots(self):
         for robot in self.robots:
             robot.draw_robot(self.win)
+            
+    def draw_ball(self):
+        self.ball.update_rect()
+        pg.draw.circle(self.win, (255, 255, 0), (self.ball.x, self.ball.y), self.ball.radius)
 
     def doing_task(self, dt):
         for robot, tasks in zip(self.robots, self.tasks):
@@ -42,6 +50,18 @@ class Simulation:
             if completed:
                 tasks.pop(0)
                 print("left over tasks", tasks)
+                
+    def game_process(self, dt):
+        # self.handle_events()
+        self.doing_task(dt) # game process
+        self.ball.move()
+        self.win.blit(self.game_field_img, (0, 0)) # this is the background
+        self.draw_ball()
+
+        self.draw_robots()
+
+        pg.display.update()
+
 
     def mainloop(self):
         while self.run:
@@ -53,13 +73,10 @@ class Simulation:
             for events in pg.event.get():
                 if events.type == pg.QUIT:
                     self.run = False
+                    
+            self.game_process(dt)
 
-            self.doing_task(dt) # game process
-            self.win.blit(self.game_field_img, (0, 0)) # this is the background
-            self.draw_robots()
-
-            pg.display.update()
-
+   
 def main():
     game = Simulation()
     game.mainloop()
