@@ -14,10 +14,10 @@ class Simulation:
         self.current_time = time.perf_counter()
 
         self.robots = [
-            Robot(robot1_x, robot1_y, robot_d, RED, robot_speed),
-            Robot(robot2_x, robot2_y, robot_d, RED, robot_speed),
-            Robot(robot3_x, robot3_y, robot_d, BLUE, robot_speed),
-            Robot(robot4_x, robot4_y, robot_d, BLUE, robot_speed)
+            Robot(robot1_x, robot1_y, robot_d, RED, robot_speed, hand_length, hand_width),
+            Robot(robot2_x, robot2_y, robot_d, RED, robot_speed, hand_length, hand_width),
+            Robot(robot3_x, robot3_y, robot_d, BLUE, robot_speed, hand_length, hand_width),
+            Robot(robot4_x, robot4_y, robot_d, BLUE, robot_speed, hand_length, hand_width)
         ]
         self.ball = Ball(x = 500, y = 600, radius =24)
         self.ball.attached = self.robots[0]
@@ -43,7 +43,7 @@ class Simulation:
             if task == "Move": # iterate through task and its operation
                 completed = robot.move(param[0], param[1], dt)
             elif task == "Dribble":
-                completed = robot.dribble()
+                completed = robot.dribble(self.ball, dt)
             elif task == "Shoot":
                 completed = robot.shoot()
 
@@ -52,7 +52,7 @@ class Simulation:
                 print("left over tasks", tasks)
                 
     def game_process(self, dt):
-        # self.handle_events()
+        
         self.doing_task(dt) # game process
         self.ball.move()
         self.win.blit(self.game_field_img, (0, 0)) # this is the background
@@ -66,8 +66,8 @@ class Simulation:
     def mainloop(self):
         while self.run:
             self.clock.tick(FPS)
-            runningfps = self.clock.get_fps()
-            print(runningfps)
+            # runningfps = self.clock.get_fps()
+            # print(runningfps)
             dt = time.perf_counter() - self.current_time
             self.current_time = time.perf_counter()
             for events in pg.event.get():
