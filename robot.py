@@ -17,10 +17,18 @@ class Ball:
     def update_rect(self):
         self.rect = pg.Rect(self.x -  self.radius, self.y - self.radius, self.radius*2, self.radius*2)
          
-    def move(self):
+    def move(self, dt):
         if not self.attached:
-            self.x += self.direction[0] * self.momentum
-            self.y += self.direction[1] * self.momentum
+            if self.momentum > 0:
+                self.x += (self.direction[0] * self.momentum * dt)
+                self.y += (self.direction[1] * self.momentum * dt)
+                self.momentum -= dt*10 # decreasing factor
+                if math.sqrt((self.x - 1400)**2+ (self.y - 400)**2) < 10:
+                    self.x = 1395
+                    self.y = 400
+                    self.momentum = 0
+            elif self.momentum < 0:
+                self.momentum = 0
             self.update_rect()
         else:
             self.x, self.y = ultil.find_rotation(self.attached.x, self.attached.y, self.attached.radius+self.attached.hand_length, self.attached.rotation)
@@ -84,14 +92,51 @@ class Robot:
     def passing(self):
         pass
 
-    def shoot(self):
-        pass
+    def shoot(self, ball:Ball, hoop:tuple, dt):
+        d_vect = (hoop[0] - self.x, hoop[1] - self.y)
+        shoot_d = ultil.find_vector_rotation(d_vect)
+        perform_shoot = False
+        if abs(self.rotation - shoot_d - 180) < dt*rotation_speed:
+            self.rotation = shoot_d + 180
+            perform_shoot = True
+        elif abs(self.rotation - shoot_d) > 180:
+            self.rotation -= dt*rotation_speed
+        elif abs(self.rotation - shoot_d) < 180:
+            self.rotation += dt*rotation_speed
+        else:
+            pass   
+
+        if perform_shoot:
+            if not ball.attached:
+                if self.hand_length < 30:
+                    self.hand_length += dt*shoot_speed
+                elif self.hand_length >= 30:
+                    self.hand_length = 30
+                    return True
+            else:
+                if self.hand_length > 5:
+                    self.hand_length -= dt*shoot_speed
+                elif self.hand_length <= 5:
+                    self.hand_length = 5
+                    ball.attached = False
+                    ball.momentum = shoot_speed*4
+                    d_vect_length = d_vect[0] + d_vect[1]
+                    d_vect = (d_vect[0]/d_vect_length, d_vect[1]/d_vect_length)
+                    ball.direction = d_vect
+        
+        return False
 
     def dunk(self):
         pass
-    
+
+    def wait(self, desired_time, current_time):
+        if desired_time - current_time > 0:
+            return False
+        else:
+            True
+
     def draw_robot(self, win):
         pg.draw.circle(win, self.color, (self.x, self.y), self.radius)
         s_pos = ultil.find_rotation(self.x, self.y, self.radius, self.rotation)
         e_pos = ultil.find_rotation(self.x, self.y, self.radius+self.hand_length, self.rotation)
-        pg.draw.line(win, GREY, s_pos, e_pos, self.hand_width)
+        pg.draw.line(win, GREEN, s_pos, e_pos, self.hand_width)

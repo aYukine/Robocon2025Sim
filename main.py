@@ -12,12 +12,13 @@ class Simulation:
         self.run = True
         self.game_field_img = pg.transform.scale(pg.image.load("assets/gameField.png"), (1504, 802)).convert_alpha()
         self.current_time = time.perf_counter()
+        self.total_time = 0
 
         self.robots = [
-            Robot(robot1_x, robot1_y, robot_d, RED, robot_speed, hand_length, hand_width),
-            Robot(robot2_x, robot2_y, robot_d, RED, robot_speed, hand_length, hand_width),
-            Robot(robot3_x, robot3_y, robot_d, BLUE, robot_speed, hand_length, hand_width),
-            Robot(robot4_x, robot4_y, robot_d, BLUE, robot_speed, hand_length, hand_width)
+            Robot(robot1_x, robot1_y, robot_d, BLUE, robot_speed, hand_length, hand_width),
+            Robot(robot2_x, robot2_y, robot_d, BLUE, robot_speed, hand_length, hand_width),
+            Robot(robot3_x, robot3_y, robot_d, RED, robot_speed, hand_length, hand_width),
+            Robot(robot4_x, robot4_y, robot_d, RED, robot_speed, hand_length, hand_width)
         ]
         self.ball = Ball(x = 500, y = 600, radius =24)
         self.ball.attached = self.robots[0]
@@ -45,7 +46,7 @@ class Simulation:
             elif task == "Dribble":
                 completed = robot.dribble(self.ball, dt)
             elif task == "Shoot":
-                completed = robot.shoot()
+                completed = robot.shoot(self.ball, (1400, 400), dt)
 
             if completed:
                 tasks.pop(0)
@@ -54,11 +55,16 @@ class Simulation:
     def game_process(self, dt):
         
         self.doing_task(dt) # game process
-        self.ball.move()
+        self.ball.move(dt)
         self.win.blit(self.game_field_img, (0, 0)) # this is the background
-        self.draw_ball()
+        ultil.write(self.win, BLACK, f"{self.total_time:.02F}", game_field_size[0]//2, 30, "MIDDLE", 30)
+        if self.ball.attached:
+            self.draw_ball()
 
         self.draw_robots()
+        if not self.ball.attached:
+            self.draw_ball()
+
 
         pg.display.update()
 
@@ -70,6 +76,7 @@ class Simulation:
             # print(runningfps)
             dt = time.perf_counter() - self.current_time
             self.current_time = time.perf_counter()
+            self.total_time += dt
             for events in pg.event.get():
                 if events.type == pg.QUIT:
                     self.run = False

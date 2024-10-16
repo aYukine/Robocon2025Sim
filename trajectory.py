@@ -1,7 +1,7 @@
 robot1_tasks = [("Move", (700, 200)),
-                ("Move", (800, 100)),
-                ("Move", (750, 200)),
-                ("Dribble", ()) ]
+                ("Dribble", ()),
+                ("Move", (900, 300)),
+                ("Shoot", ()) ]
 
 robot2_tasks = []
 
