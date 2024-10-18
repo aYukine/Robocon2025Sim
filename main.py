@@ -15,10 +15,10 @@ class Simulation:
         self.total_time = 0
 
         self.robots = [
-            Robot(robot1_x, robot1_y, robot_d, BLUE, robot_speed, hand_length, hand_width),
-            Robot(robot2_x, robot2_y, robot_d, BLUE, robot_speed, hand_length, hand_width),
-            Robot(robot3_x, robot3_y, robot_d, RED, robot_speed, hand_length, hand_width),
-            Robot(robot4_x, robot4_y, robot_d, RED, robot_speed, hand_length, hand_width)
+            Robot(robot1_x, robot1_y, robot_d, BLUE, robot_speed, hand_length, hand_width, 0),
+            Robot(robot2_x, robot2_y, robot_d, BLUE, robot_speed, hand_length, hand_width, 180),
+            Robot(robot3_x, robot3_y, robot_d, RED, robot_speed, hand_length, hand_width, 0),
+            Robot(robot4_x, robot4_y, robot_d, RED, robot_speed, hand_length, hand_width, 0)
         ]
         self.ball = Ball(x = 500, y = 600, radius =24)
         self.ball.attached = self.robots[0]
@@ -47,7 +47,9 @@ class Simulation:
                 completed = robot.dribble(self.ball, dt)
             elif task == "Shoot":
                 completed = robot.shoot(self.ball, (1400, 400), dt)
-
+            elif task == "Wait":
+                completed = robot.wait(param, self.total_time)
+            
             if completed:
                 tasks.pop(0)
                 print("left over tasks", tasks)
@@ -57,7 +59,7 @@ class Simulation:
         self.doing_task(dt) # game process
         self.ball.move(dt)
         self.win.blit(self.game_field_img, (0, 0)) # this is the background
-        ultil.write(self.win, BLACK, f"{self.total_time:.02F}", game_field_size[0]//2, 30, "MIDDLE", 30)
+        ultil.write(self.win, BLACK, f"{self.total_time-5:.02F}", game_field_size[0]//2, 30, "MIDDLE", 30)
         if self.ball.attached:
             self.draw_ball()
 
@@ -80,10 +82,9 @@ class Simulation:
             for events in pg.event.get():
                 if events.type == pg.QUIT:
                     self.run = False
-                    
-            self.game_process(dt)
+            if self.total_time >= 5:
+                self.game_process(dt)
 
-   
 def main():
     game = Simulation()
     game.mainloop()

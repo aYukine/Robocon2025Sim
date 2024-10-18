@@ -35,7 +35,7 @@ class Ball:
             self.update_rect()
 
 class Robot:
-    def __init__(self, x, y, diameter, color, speed, hand_length, hand_width):
+    def __init__(self, x, y, diameter, color, speed, hand_length, hand_width, rotation):
         self.x = x
         self.y = y
         self.radius = diameter/2
@@ -45,7 +45,7 @@ class Robot:
         self.color = color
         self.rect = pg.Rect(x-diameter/2, y-diameter/2, diameter, diameter)
         self.speed = speed
-        self.rotation = 0
+        self.rotation = rotation
         self.__dribbled = False
 
     def update_rect(self):
@@ -129,14 +129,15 @@ class Robot:
     def dunk(self):
         pass
 
-    def wait(self, desired_time, current_time):
-        if desired_time - current_time > 0:
+    def wait(self, desired_time, total_time):
+    
+        if (desired_time - total_time) > 0:
             return False
         else:
-            True
+            return True
 
     def draw_robot(self, win):
         pg.draw.circle(win, self.color, (self.x, self.y), self.radius)
         s_pos = ultil.find_rotation(self.x, self.y, self.radius, self.rotation)
         e_pos = ultil.find_rotation(self.x, self.y, self.radius+self.hand_length, self.rotation)
-        pg.draw.line(win, GREEN, s_pos, e_pos, self.hand_width)
+        pg.draw.line(win, self.color, s_pos, e_pos, self.hand_width)

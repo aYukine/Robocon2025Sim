@@ -11,11 +11,11 @@ robot1_x, robot1_y = 100, 200
 robot2_x, robot2_y = 300, 500
 robot3_x, robot3_y = 1400, 600
 robot4_x, robot4_y = 1200, 300
-robot_speed = 300 #pixel per second = 3 meter per second
+robot_speed = 200 #pixel per second = 3 meter per second
 rotation_speed = 180
-shoot_speed = 200
+shoot_speed = 300
 
-dribble_time = 0.5 # 1 second
+dribble_time = 0.3 # 1 second
 
 hand_length = 30
 hand_width = 10
