@@ -22,7 +22,7 @@ class Simulation:
         ]
         self.ball = Ball(x = 500, y = 600, radius =24)
         self.ball.attached = self.robots[0]
-        self.tasks = [robot1_tasks, robot2_tasks, robot3_tasks, robot4_tasks]
+        self.tasks = current_trajectory
         self.clock = pg.time.Clock()
 
     def draw_robots(self):
