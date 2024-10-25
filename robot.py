@@ -11,19 +11,19 @@ class Ball:
         self.rect = pg.Rect(x-radius, y-radius, radius*2, radius*2)
         self.momentum = 0
         self.direction = (0, 0)
-        self.attached = False
-        self.master = None
+        self.attached = False # else it is a Robot type
 
     def update_rect(self):
         self.rect = pg.Rect(self.x -  self.radius, self.y - self.radius, self.radius*2, self.radius*2)
          
     def move(self, dt):
         if not self.attached:
+            # Ball moving freely
             if self.momentum > 0:
                 self.x += (self.direction[0] * self.momentum * dt)
                 self.y += (self.direction[1] * self.momentum * dt)
-                self.momentum -= dt*10 # decreasing factor
-                if math.sqrt((self.x - 1400)**2+ (self.y - 400)**2) < 10:
+                self.momentum -= dt * 10  # Decrease momentum
+                if math.sqrt((self.x - 1400)**2 + (self.y - 400)**2) < 10:
                     self.x = 1395
                     self.y = 400
                     self.momentum = 0
@@ -31,11 +31,14 @@ class Ball:
                 self.momentum = 0
             self.update_rect()
         else:
-            self.x, self.y = ultil.find_rotation(self.attached.x, self.attached.y, self.attached.radius+self.attached.hand_length, self.attached.rotation)
+            # Ball is attached to a robot
+            self.x, self.y = ultil.find_rotation(self.attached.x, self.attached.y, 
+                                                self.attached.radius + self.attached.hand_length, 
+                                                self.attached.rotation)
             self.update_rect()
 
 class Robot:
-    def __init__(self, x, y, diameter, color, speed, hand_length, hand_width, rotation):
+    def __init__(self, x, y, diameter, color, speed, hand_length, hand_width, rotation, team):
         self.x = x
         self.y = y
         self.radius = diameter/2
@@ -46,6 +49,7 @@ class Robot:
         self.rect = pg.Rect(x-diameter/2, y-diameter/2, diameter, diameter)
         self.speed = speed
         self.rotation = rotation
+        self.team = team
         self.__dribbled = False
 
     def update_rect(self):
@@ -88,40 +92,56 @@ class Robot:
 
         print(ball.radius)
         return False
-    
-    def passing(self):
-        pass
+
+    def passing(self, ball:Ball, dt, dest):  #dest : d_of robot that target to 
+        if ball.attached == self:
+            ball.attached = False
+            d_vect = (dest.x - self.x, dest.y - self.y)
+            d_vect_length = math.sqrt(d_vect[0] ** 2 + d_vect[1] ** 2)
+            ball.direction = (d_vect[0] / d_vect_length, d_vect[1] / d_vect_length)
+            ball.momentum = pass_speed
+
+        if not ball.attached:
+            d_to_robot = math.sqrt((ball.x - dest.x) ** 2 + (ball.y - dest.y) ** 2)
+            if d_to_robot < ball.radius:
+                ball.attached = dest
+                ball.x, ball.y = ultil.find_rotation(dest.x, dest.y, dest.radius + dest.hand_length, dest.rotation)
+                return True
+
+        return False
+
 
     def shoot(self, ball:Ball, hoop:tuple, dt):
         d_vect = (hoop[0] - self.x, hoop[1] - self.y)
         shoot_d = ultil.find_vector_rotation(d_vect)
         perform_shoot = False
-        if abs(self.rotation - shoot_d - 180) < dt*rotation_speed:
+        
+        if abs(self.rotation - shoot_d - 180) < dt * rotation_speed:
             self.rotation = shoot_d + 180
             perform_shoot = True
         elif abs(self.rotation - shoot_d) > 180:
-            self.rotation -= dt*rotation_speed
+            self.rotation -= dt * rotation_speed
         elif abs(self.rotation - shoot_d) < 180:
-            self.rotation += dt*rotation_speed
-        else:
-            pass   
+            self.rotation += dt * rotation_speed
+        # else:
+        #     pass   
 
         if perform_shoot:
             if not ball.attached:
                 if self.hand_length < 30:
-                    self.hand_length += dt*shoot_speed
+                    self.hand_length += dt * shoot_speed
                 elif self.hand_length >= 30:
                     self.hand_length = 30
                     return True
             else:
                 if self.hand_length > 5:
-                    self.hand_length -= dt*shoot_speed
+                    self.hand_length -= dt * shoot_speed
                 elif self.hand_length <= 5:
                     self.hand_length = 5
                     ball.attached = False
-                    ball.momentum = shoot_speed*4
+                    ball.momentum = shoot_speed
                     d_vect_length = d_vect[0] + d_vect[1]
-                    d_vect = (d_vect[0]/d_vect_length, d_vect[1]/d_vect_length)
+                    d_vect = (d_vect[0] / d_vect_length, d_vect[1] / d_vect_length)
                     ball.direction = d_vect
         
         return False

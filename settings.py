@@ -13,7 +13,8 @@ robot3_x, robot3_y = 1400, 600
 robot4_x, robot4_y = 1200, 300
 robot_speed = 200 #pixel per second = 3 meter per second
 rotation_speed = 180
-shoot_speed = 300
+shoot_speed = 250
+pass_speed = 1000
 
 dribble_time = 0.3 # 1 second
 
